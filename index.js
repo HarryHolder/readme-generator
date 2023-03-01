@@ -1,10 +1,7 @@
-// const fs = require("fs");
-// const path = require('path');
-// const inquirer = require("inquirer");
-// const generateMarkdown = require("./utils/generateMarkdown");
-
-import fs from "fs";
-import inquirer from "inquirer";
+const fs = require("fs");
+const path = require('path');
+const inquirer = require("inquirer");
+const generateMarkdown = require("./utils/generateMarkdown");
 
 // array of questions for user
 const questions = [
@@ -34,16 +31,16 @@ const questions = [
             }
         }
     },
-    // table of content needed to be added linking to sections when clicked
     {
         type: "input",
         name: "installation",
-        message: "Please provide any details of packages needed to run your project (required)",
+        message: "What commands should be used to install necessary dependencies (required)",
+        default: "npm i",
         validate: installGuide => {
             if (installGuide) {
                 return true;
             } else {
-                console.log("Please provide details of packages, or input None");
+                console.log("Please provide a response");
                 return false;
             }
         }
@@ -65,7 +62,7 @@ const questions = [
         type: "list",
         name: "license",
         message: "Please provide license information (required)",
-        choices: ["MIT", "GPLv2", "Apache", "Other", "None"],
+        choices: ["MIT", "GPLv2", "Apache", "None"],
         default: 0,
         validate: licenseList => {
             if (licenseList) {
@@ -91,13 +88,14 @@ const questions = [
     },
     {
         type: "input",
-        name: "test",
-        message: "Please enter any test information for your project. (required)",
+        name: "tests",
+        message: "What command should be used to perform tests?",
+        default: "npm run test",
         validate: testInput => {
             if (testInput) {
                 return true;
             } else {
-                console.log("Please enter a description of your project (required");
+                console.log("Please provide a response");
                 return false;
             }
         }
@@ -132,11 +130,16 @@ const questions = [
 
 // function to write README file
 function writeToFile(fileName, data) {
+    return fs.writeFileSync(path.join(process.cwd(), fileName), data); // join repo with file name
 }
 
 // function to initialize program
 function init() {
-    return inquirer.prompt(questions);
+    return inquirer.prompt(questions)
+    .then ((responces) => {
+        console.log("Writing your readme");
+        writeToFile("GenReadme.md", generateMarkdown({...responces})); 
+    })
 }
 
 // function call to initialize program
